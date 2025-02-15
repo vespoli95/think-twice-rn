@@ -5,9 +5,6 @@ import {
   FlatList,
   TouchableOpacity,
   ListRenderItemInfo,
-  Animated,
-  ScrollView,
-  TextInput,
 } from 'react-native';
 import {AndroidApplicationInfo} from '../../../types';
 import {MMKVLoader, useMMKVStorage} from 'react-native-mmkv-storage';
@@ -20,7 +17,7 @@ const Configure = ({navigation, route}) => {
   const [selectedApps, setSelectedApps] = useMMKVStorage<
     AndroidApplicationInfo[]
   >('selectedApps', storage, []);
-  const [delay, setDelay] = useMMKVStorage<number>('delay', storage, 3);
+  const [delay, setDelay] = useMMKVStorage<string>('delay', storage, '3');
 
   const installedApps = NativeAppList.getInstalledApps()
     .filter(app => app)
@@ -38,9 +35,16 @@ const Configure = ({navigation, route}) => {
     );
   };
 
-  const handleDelayChange = (value: string) => {
-    const numericValue = parseInt(value, 10);
-    setDelay(isNaN(numericValue) ? 0 : numericValue);
+  const incrementDelay = () => {
+    const currentDelay = parseInt(delay || '0', 10);
+    const newDelay = Math.min(60, currentDelay + 1);
+    setDelay(String(newDelay));
+  };
+
+  const decrementDelay = () => {
+    const currentDelay = parseInt(delay || '0', 10);
+    const newDelay = Math.max(1, currentDelay - 1);
+    setDelay(String(newDelay));
   };
 
   const renderAppItem = ({
@@ -92,14 +96,25 @@ const Configure = ({navigation, route}) => {
           Delay Settings
         </Text>
         <View className="flex-row items-center">
-          <TextInput
-            value={delay?.toString()}
-            onChangeText={handleDelayChange}
-            keyboardType="numeric"
-            className="flex-1 h-12 px-4 border border-gray-300 rounded-lg bg-white"
-            placeholder="Enter delay in seconds"
-          />
-          <Text className="ml-2 text-gray-600">seconds</Text>
+          <TouchableOpacity
+            onPress={decrementDelay}
+            className="w-12 h-12 bg-gray-200 rounded-l-lg items-center justify-center active:bg-gray-300">
+            <Text className="text-2xl text-gray-600">-</Text>
+          </TouchableOpacity>
+
+          <View className="h-12 px-4 bg-white border-t border-b border-gray-300 justify-center min-w-[60px]">
+            <Text className="text-center text-lg font-semibold">
+              {delay || '0'}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={incrementDelay}
+            className="w-12 h-12 bg-gray-200 rounded-r-lg items-center justify-center active:bg-gray-300">
+            <Text className="text-2xl text-gray-600">+</Text>
+          </TouchableOpacity>
+
+          <Text className="ml-3 text-gray-600">seconds</Text>
         </View>
       </View>
     </View>
