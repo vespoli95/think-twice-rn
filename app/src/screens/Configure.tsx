@@ -20,7 +20,9 @@ const Configure = ({navigation, route}) => {
   const [delay, setDelay] = useMMKVStorage<string>('delay', storage, '3');
 
   const installedApps = NativeAppList.getInstalledApps()
-    .filter(app => app)
+    .filter(
+      app => app?.name.indexOf('com.') === -1 && app?.name !== 'ThinkTwice',
+    )
     .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
   const toggleAppSelection = (app: AndroidApplicationInfo) => {
