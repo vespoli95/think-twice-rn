@@ -1,38 +1,37 @@
 import './global.css';
 import React from 'react';
-import {ScrollView, Text} from 'react-native';
 
-import NativeAppList from './specs/NativeAppList';
-import AppList from './app/src/components/AppList';
+import AppList from './app/src/screens/AppList';
 
-import {MMKVLoader, useMMKVStorage} from 'react-native-mmkv-storage';
-import {AndroidApplicationInfo} from './types';
-const storage = new MMKVLoader().initialize();
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {View, Button} from 'react-native';
+
+function HomeScreen({navigation}): React.JSX.Element {
+  return (
+    <View>
+      <Button
+        title="Select apps..."
+        onPress={() => navigation.navigate('AppList', {name: 'Jane'})}
+      />
+    </View>
+  );
+}
+
+const Stack = createNativeStackNavigator();
 
 function App(): React.JSX.Element {
-  const [selectedApps, setSelectedApps] = useMMKVStorage<
-    AndroidApplicationInfo[]
-  >('selectedApps', storage, []);
-
-  const handleAppSelection = async (apps: AndroidApplicationInfo[]) => {
-    console.log('Saving selected apps');
-    setSelectedApps(apps);
-  };
-
-  // remove nulls
-  const installedApps = NativeAppList.getInstalledApps().filter(app => app);
-
-  console.log(selectedApps);
-
   return (
-    <ScrollView style={{flex: 1}}>
-      <Text className="font-bold text-2xl mb-5">Home</Text>
-      <AppList
-        apps={installedApps}
-        handleAppSelection={handleAppSelection}
-        selectedApps={selectedApps}
-      />
-    </ScrollView>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen
+          name="AppList"
+          component={AppList}
+          options={{title: 'App List'}}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
